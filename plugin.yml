@@ -1,0 +1,4 @@
+name: CommandRecords
+version: 1.0.0
+main: com.github.mrivek.commandrecords.CommandRecords
+description: Log all commands used by the players.
