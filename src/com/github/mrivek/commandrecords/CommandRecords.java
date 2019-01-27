@@ -10,13 +10,15 @@ import java.util.Date;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CommandRecords extends JavaPlugin implements Listener {
 
-	private File logFile = new File(getDataFolder(), "log.txt");
-	private File commandRecordsFolder = logFile.getParentFile();
+	private File commandFile = new File(getDataFolder(), "commandLog.txt");
+	private File chatFile = new File(getDataFolder(), "chatLog.txt");
+	private File commandRecordsFolder = commandFile.getParentFile();
 
 	@Override
 	public void onEnable() {
@@ -24,9 +26,26 @@ public class CommandRecords extends JavaPlugin implements Listener {
 			commandRecordsFolder.mkdirs();
 		}
 
-		if (!logFile.exists()) {
+		if (!commandRecordsFolder.exists()) {
 			try {
-				logFile.createNewFile();
+				commandFile.createNewFile();
+				chatFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (!commandFile.exists()) {
+			try {
+				commandFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (!chatFile.exists()) {
+			try {
+				chatFile.createNewFile();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -44,12 +63,25 @@ public class CommandRecords extends JavaPlugin implements Listener {
 	@EventHandler
 	public void executeCMD(PlayerCommandPreprocessEvent event) {
 		try {
-			BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFile, true));
+			BufferedWriter commandWriter = new BufferedWriter(new FileWriter(commandFile, true));
 			Date date = new Date();
 			DateFormat dateFormated = new SimpleDateFormat("yyyy:MM:dd ### hh:mm:ss a");
-			logWriter.write(dateFormated.format(date) + " ### " + event.getPlayer().getName() + " ### "
+			commandWriter.write(dateFormated.format(date) + " # " + event.getPlayer().getName() + " # "
 					+ event.getMessage() + "\n");
-			logWriter.close();
+			commandWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@EventHandler
+	public void chat(AsyncPlayerChatEvent event) {
+		try {
+			BufferedWriter chatWriter = new BufferedWriter(new FileWriter(chatFile, true));
+			Date date = new Date();
+			DateFormat dateFormated = new SimpleDateFormat("yyyy:MM:dd # hh:mm:ss a");
+			chatWriter.write(dateFormated.format(date) + " # " + event.getPlayer().getName() + ": " + event.getMessage() + "\n");
+			chatWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
